@@ -43,15 +43,21 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5001;
 
-const server = app.listen(PORT, () => {
-    console.log(
-        `\x1b[36m[Server] Running in ${process.env.NODE_ENV} mode on port ${PORT}\x1b[0m`
-    );
-});
+// Only start the server if not running in Vercel
+if (process.env.VERCEL !== '1') {
+    const server = app.listen(PORT, () => {
+        console.log(
+            `\x1b[36m[Server] Running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}\x1b[0m`
+        );
+    });
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err: any, promise) => {
-    console.log(`\x1b[31m[Error] Unhandled Rejection: ${err.message}\x1b[0m`);
-    // Close server & exit process
-    server.close(() => process.exit(1));
-});
+    // Handle unhandled promise rejections
+    process.on('unhandledRejection', (err: any, promise) => {
+        console.log(`\x1b[31m[Error] Unhandled Rejection: ${err.message}\x1b[0m`);
+        // Close server & exit process
+        server.close(() => process.exit(1));
+    });
+}
+
+// Export the app for Vercel serverless
+export default app;

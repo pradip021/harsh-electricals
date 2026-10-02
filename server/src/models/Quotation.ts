@@ -8,7 +8,7 @@ export interface IQuotationItem {
     qty: string | number;
     unit: string;
     unitId?: mongoose.Types.ObjectId | string | null;
-    rate: number;
+    rate: number | null;
     amount: number;
     isSection: boolean;
     values?: Map<string, CellValue>;

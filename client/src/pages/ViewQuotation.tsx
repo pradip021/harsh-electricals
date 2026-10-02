@@ -3,7 +3,7 @@ import { useQuotations } from '../context/QuotationContext';
 import { generateQuotationPDF } from '../utils/pdfGenerator';
 import { useMemo, useState } from 'react';
 import Modal from '../components/Modal';
-import { computeAutoValues, formatCellValue, normalizeColumns, resolveCustomCellValue } from '../utils/tableColumns';
+import { computeAutoValues, formatCellValue, hasRate, normalizeColumns, resolveCustomCellValue } from '../utils/tableColumns';
 import { useUnits } from '../context/UnitsContext';
 import { withResolvedUnitNames } from '../utils/units';
 import { usePrintableSignature } from '../hooks/usePrintableSignature';
@@ -296,13 +296,17 @@ const ViewQuotation = () => {
                                                     case 'rate':
                                                         return (
                                                             <td key={column.id} className={`px-6 py-4 text-right text-gray-700 dark:text-gray-300 font-bold tabular-nums ${border}`}>
-                                                                {Number(item.rate).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                                {hasRate(item.rate)
+                                                                    ? Number(item.rate).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                                                    : '—'}
                                                             </td>
                                                         );
                                                     case 'amount':
                                                         return (
                                                             <td key={column.id} className={`px-6 py-4 text-right font-black text-gray-900 dark:text-white tabular-nums ${border}`}>
-                                                                ₹{(item.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                                {hasRate(item.rate)
+                                                                    ? `₹${(item.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                                                    : '—'}
                                                             </td>
                                                         );
                                                     default:

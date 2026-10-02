@@ -49,7 +49,8 @@ export interface QuotationItem {
     unit: string;
     unitId?: string | null;
     qty: number | string;
-    rate: number | string;
+    /** null when no rate is given; such rows show "—" for rate and amount and add 0 to the total. */
+    rate: number | string | null;
     amount: number;
     isSection: boolean;
     /** Values of user-defined columns, keyed by column id. */

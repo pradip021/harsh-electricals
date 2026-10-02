@@ -3,7 +3,7 @@ import QuotationRow from './QuotationRow';
 import UnitPicker from './UnitPicker';
 import CustomCellInput from './CustomCellInput';
 import { CellValue, QuotationItem, TableColumn } from '../types';
-import { computeAutoValues, normalizeColumns, resolveCustomCellValue } from '../utils/tableColumns';
+import { computeAutoValues, hasRate, isRateInvalid, normalizeColumns, parseRateInput, resolveCustomCellValue } from '../utils/tableColumns';
 import { UnitSelection } from '../utils/units';
 
 interface QuotationTableProps {
@@ -153,7 +153,7 @@ const MobileQuotationCard = memo(({ item, itemNumber, customColumns, autoValues,
 
     const pointInvalid = showValidationErrors && !item.pointName?.trim();
     const qtyInvalid = showValidationErrors && !item.isSection && !String(item.qty).trim();
-    const rateInvalid = showValidationErrors && !item.isSection && (parseFloat(String(item.rate)) || 0) <= 0;
+    const rateInvalid = showValidationErrors && !item.isSection && isRateInvalid(item.rate);
 
     if (item.isSection) {
         return (
@@ -252,8 +252,8 @@ const MobileQuotationCard = memo(({ item, itemNumber, customColumns, autoValues,
                         <span className="text-gray-400 dark:text-gray-500 font-bold mr-1 text-sm">₹</span>
                         <input
                             type="number"
-                            value={item.rate}
-                            onChange={(e) => onUpdate(item.id, 'rate', parseFloat(e.target.value) || 0)}
+                            value={item.rate ?? ''}
+                            onChange={(e) => onUpdate(item.id, 'rate', parseRateInput(e.target.value))}
                             className="bg-transparent font-black text-base text-gray-800 dark:text-white outline-none w-full"
                             placeholder="0.00"
                         />
@@ -264,7 +264,7 @@ const MobileQuotationCard = memo(({ item, itemNumber, customColumns, autoValues,
                         Total Amount
                     </span>
                     <span className="text-2xl font-black text-red-600 dark:text-red-500 tabular-nums tracking-tighter">
-                        ₹{(item.amount || 0).toFixed(2)}
+                        {hasRate(item.rate) ? `₹${(item.amount || 0).toFixed(2)}` : '—'}
                     </span>
                 </div>
             </div>

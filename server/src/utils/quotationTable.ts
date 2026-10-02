@@ -52,7 +52,7 @@ export interface TableItemInput {
     qty?: string | number | null;
     unit?: string;
     unitId?: string | null;
-    rate?: number;
+    rate?: number | string | null;
     amount?: number;
     isSection?: boolean;
     values?: Record<string, CellValue>;
@@ -64,7 +64,8 @@ export interface TableItem {
     qty: string | number;
     unit: string;
     unitId: string | null;
-    rate: number;
+    /** null when no rate is given; the amount is then 0. */
+    rate: number | null;
     amount: number;
     isSection: boolean;
     values: Record<string, CellValue>;
@@ -236,7 +237,7 @@ export const normalizeItems = (items: TableItemInput[], columns: TableColumn[]):
             qty: item.qty ?? (isSection ? '' : 1),
             unit: item.unit ?? (isSection ? '' : 'Nos'),
             unitId: isSection || !item.unitId ? null : String(item.unitId),
-            rate: item.rate ?? 0,
+            rate: item.rate === undefined || item.rate === null || item.rate === '' ? null : Number(item.rate),
             amount: isSection ? 0 : calculateAmount(item.qty, item.rate),
             isSection,
             values,

@@ -4,11 +4,19 @@ import ErrorResponse from '../utils/errorResponse';
 import User from '../models/User';
 import { AuthRequest } from '../middleware/auth';
 
+// Emails are matched regardless of case; accounts created before this may be stored with capitals.
+const CASE_INSENSITIVE = { locale: 'en', strength: 2 };
+
 // @desc    Register user
 // @route   POST /api/v1/auth/register
 // @access  Public
 export const register = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
-    const { name, email, password, role } = req.body;
+    const { name, password, role } = req.body;
+    const email = String(req.body.email).trim().toLowerCase();
+
+    if (await User.exists({ email }).collation(CASE_INSENSITIVE)) {
+        return next(new ErrorResponse('An account with this email already exists', 400));
+    }
 
     // Create user
     const user = await User.create({
@@ -32,8 +40,10 @@ export const login = asyncHandler(async (req: AuthRequest, res: Response, next: 
         return next(new ErrorResponse('Please provide an email and password', 400));
     }
 
-    // Check for user
-    const user = await User.findOne({ email }).select('+password');
+    // Check for user (an exact match wins if two older accounts differ only by case)
+    const normalizedEmail = String(email).trim();
+    const user = await User.findOne({ email: normalizedEmail }).select('+password')
+        ?? await User.findOne({ email: normalizedEmail }).collation(CASE_INSENSITIVE).select('+password');
 
     if (!user) {
         return next(new ErrorResponse('Invalid credentials', 401));

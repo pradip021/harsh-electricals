@@ -1,5 +1,5 @@
 import { Quotation, QuotationItem, TableColumn } from '../types';
-import { computeAutoValues, formatCellValue, normalizeColumns, resolveCustomCellValue } from './tableColumns';
+import { computeAutoValues, formatCellValue, hasRate, normalizeColumns, resolveCustomCellValue } from './tableColumns';
 
 /**
  * Single source of the quotation document layout. The live preview displays these pages and the
@@ -151,10 +151,11 @@ const renderItemRow = (item: QuotationItem, columns: TableColumn[], autoValues: 
               return `<td style="padding: 6px 5px; text-align: center; ${CELL} font-weight: 600; overflow-wrap: anywhere;">${escapeHtml(formatQty(item))}</td>`;
           case 'rate': {
               const rate = Number(item.rate) || 0;
-              return `<td style="padding: 6px 5px; text-align: center; ${CELL} font-weight: 600;">${rate === 0 ? 'L.S.' : rate.toFixed(2)}</td>`;
+              const text = !hasRate(item.rate) ? '—' : rate === 0 ? 'L.S.' : rate.toFixed(2);
+              return `<td style="padding: 6px 5px; text-align: center; ${CELL} font-weight: 600;">${text}</td>`;
           }
           case 'amount':
-              return `<td style="padding: 6px 5px; text-align: center; ${CELL} color: #b91c1c; font-weight: 800; white-space: nowrap;">${(Number(item.amount) || 0).toFixed(2)}</td>`;
+              return `<td style="padding: 6px 5px; text-align: center; ${CELL} color: #b91c1c; font-weight: 800; white-space: nowrap;">${hasRate(item.rate) ? (Number(item.amount) || 0).toFixed(2) : '—'}</td>`;
           default:
               return `<td style="padding: 6px 5px; text-align: center; ${CELL} overflow-wrap: anywhere;">${escapeHtml(formatCellValue(resolveCustomCellValue(column, item, autoValues)))}</td>`;
       }

@@ -46,7 +46,8 @@ const itemSchema = Joi.object({
     qty: Joi.alternatives().try(Joi.string().allow('').max(100), Joi.number()).allow(null),
     unit: optionalText(50),
     unitId: Joi.string().hex().length(24).allow(null, ''),
-    rate: Joi.number().min(0),
+    // Optional: blank (null or '') means no rate was given.
+    rate: Joi.number().min(0).allow(null, ''),
     amount: Joi.number(),
     isSection: Joi.boolean(),
     values: Joi.object().pattern(COLUMN_ID_PATTERN, cellValue),

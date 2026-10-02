@@ -2,7 +2,7 @@ import { memo } from 'react';
 import UnitPicker from './UnitPicker';
 import CustomCellInput from './CustomCellInput';
 import { CellValue, QuotationItem, SystemColumnKey, TableColumn } from '../types';
-import { resolveCustomCellValue } from '../utils/tableColumns';
+import { hasRate, isRateInvalid, parseRateInput, resolveCustomCellValue } from '../utils/tableColumns';
 import { UnitSelection } from '../utils/units';
 
 interface QuotationRowProps {
@@ -35,7 +35,7 @@ const QuotationRow = memo(({ item, columns, autoValues, applicableCount, getUnit
 
     const pointInvalid = showValidationErrors && !item.pointName?.trim();
     const qtyInvalid = showValidationErrors && !item.isSection && !String(item.qty).trim();
-    const rateInvalid = showValidationErrors && !item.isSection && (parseFloat(String(item.rate)) || 0) <= 0;
+    const rateInvalid = showValidationErrors && !item.isSection && isRateInvalid(item.rate);
 
     if (item.isSection) {
         return (
@@ -165,8 +165,8 @@ const QuotationRow = memo(({ item, columns, autoValues, applicableCount, getUnit
                         </button>
                         <input
                             type="number"
-                            value={item.rate}
-                            onChange={(e) => handleFieldChange('rate', parseFloat(e.target.value) || 0)}
+                            value={item.rate ?? ''}
+                            onChange={(e) => handleFieldChange('rate', parseRateInput(e.target.value))}
                             className="flex-1 min-w-0 h-10 bg-transparent text-center font-black text-gray-800 dark:text-gray-100 focus:outline-none appearance-none"
                             placeholder="0.00"
                             min="0"
@@ -185,7 +185,7 @@ const QuotationRow = memo(({ item, columns, autoValues, applicableCount, getUnit
                     </div>
                 );
             case 'amount':
-                return <>₹{(item.amount || 0).toFixed(2)}</>;
+                return hasRate(item.rate) ? <>₹{(item.amount || 0).toFixed(2)}</> : <>—</>;
         }
     };
 

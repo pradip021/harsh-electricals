@@ -12,6 +12,7 @@ import QuotationPreview from '../components/QuotationPreview';
 import SignatureSettings from '../components/SignatureSettings';
 import { TableColumn } from '../types';
 import { resolveSignatureSrc } from '../utils/signature';
+import { isRateInvalid } from '../utils/tableColumns';
 import { useUnits } from '../context/UnitsContext';
 import { UnitSelection } from '../utils/units';
 
@@ -168,8 +169,7 @@ const AddEditQuotation = () => {
                 const pointEmpty = !item.pointName?.trim();
                 if (isSection) return pointEmpty;
                 const qtyVal = String(item.qty).trim();
-                const rateVal = parseFloat(item.rate) || 0;
-                return pointEmpty || !qtyVal || rateVal <= 0;
+                return pointEmpty || !qtyVal || isRateInvalid(item.rate);
             }
         );
 

@@ -146,6 +146,19 @@ export const countNonNumericValues = (items: QuotationItem[], columnId: string) 
 
 export const formatCellValue = (value: CellValue | undefined) => (value === null || value === undefined ? '' : String(value));
 
+/** Rate is optional: a blank rate (null or '') means "no rate", which is different from 0. */
+export const hasRate = (rate: QuotationItem['rate'] | undefined) =>
+    rate !== null && rate !== undefined && String(rate).trim() !== '';
+
+/** A blank rate is valid; a supplied rate must be a number of 0 or more. */
+export const isRateInvalid = (rate: QuotationItem['rate'] | undefined) => hasRate(rate) && !(Number(rate) >= 0);
+
+/** Clearing the rate input keeps the rate blank instead of turning it into 0. */
+export const parseRateInput = (value: string): number | null => {
+    const rate = parseFloat(value);
+    return Number.isNaN(rate) ? null : rate;
+};
+
 /** Value shown for a user-defined column in a given row. */
 export const resolveCustomCellValue = (
     column: TableColumn,
